@@ -1,0 +1,859 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CSM Success Resource Hub</title>
+<style>
+:root{
+ --cdk-bg:#13151d;
+ --cdk-card:#1a1d27;
+ --cdk-card2:#1e2130;
+ --cdk-green:#9BCA3E;
+ --cdk-blue:#5B9BD5;
+ --cdk-red:#E24B5B;
+ --cdk-orange:#E8A838;
+ --d-white:#e8eaef;
+ --muted:#9ba0ad;
+ --border:rgba(255,255,255,.09);
+ --row-hover:rgba(155,202,62,.06);
+ --radius:4px;
+ --font:"Segoe UI",-apple-system,system-ui,Roboto,Arial,sans-serif;
+ --mono:"Cascadia Code","Consolas","SF Mono",monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font);color:var(--d-white);background:var(--cdk-bg);line-height:1.5;font-size:13px;}
+a{color:var(--cdk-blue);text-decoration:none;}
+a:hover{text-decoration:underline;}
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:3px;}
+button{font-family:var(--font);}
+
+/* TOPBAR */
+.topbar{position:sticky;top:0;z-index:100;background:var(--cdk-card);border-bottom:1px solid var(--border);}
+.topbar-inner{max-width:1280px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.brand{display:flex;align-items:center;gap:10px;min-width:0;}
+.logo-wrap{width:36px;height:36px;border-radius:999px;background:#0f1320;display:grid;place-items:center;border:2px solid rgba(255,255,255,.92);flex:0 0 36px;}
+.cdk-logo-text{font-family:Arial,Helvetica,sans-serif;font-weight:900;letter-spacing:-0.5px;color:#fff;font-size:11px;line-height:1;}
+.brand-title .title{font-weight:900;letter-spacing:.3px;font-size:14px;text-transform:uppercase;white-space:nowrap;}
+.brand-title .title span{color:var(--cdk-green);}
+.brand-title .sub{font-size:10px;color:var(--muted);margin-top:1px;}
+.top-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.search-box{position:relative;flex:0 1 280px;min-width:180px;}
+.search-box input{width:100%;padding:7px 10px 7px 30px;border-radius:3px;border:1px solid rgba(255,255,255,.12);background:#12141b;color:var(--d-white);font-size:12px;outline:none;}
+.search-box input:focus{border-color:rgba(91,155,213,.5);box-shadow:0 0 0 2px rgba(91,155,213,.1);}
+.search-box .ico{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;pointer-events:none;}
+.tb{padding:5px 10px;border-radius:3px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;border:1px solid rgba(255,255,255,.1);background:#22252f;color:var(--muted);transition:all .15s;white-space:nowrap;}
+.tb:hover{filter:brightness(1.15);}
+.tb.active{background:rgba(226,75,91,.12);border-color:rgba(226,75,91,.35);color:var(--cdk-red);}
+.tb.green{background:rgba(155,202,62,.08);border-color:rgba(155,202,62,.2);color:var(--cdk-green);}
+.user-badge{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:3px;background:rgba(155,202,62,.08);border:1px solid rgba(155,202,62,.18);font-size:11px;color:var(--cdk-green);cursor:pointer;white-space:nowrap;}
+.region-sel{padding:5px 8px;border-radius:3px;border:1px solid rgba(255,255,255,.1);background:#12141b;color:var(--d-white);font-size:11px;outline:none;cursor:pointer;}
+
+/* PAGE */
+.page{max-width:1280px;margin:0 auto;padding:12px 20px 50px 20px;display:flex;flex-direction:column;gap:12px;}
+
+/* DASHBOARD */
+.dash{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;}
+.dash-card{background:var(--cdk-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;text-align:center;}
+.dash-card .dv{font-size:24px;font-weight:900;color:var(--cdk-green);}
+.dash-card .dl{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-top:2px;}
+
+/* FAVORITES */
+.fav-bar{background:var(--cdk-card);border:1px solid var(--border);border-radius:var(--radius);padding:9px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-height:40px;}
+.fav-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);}
+.fav-chip{font-size:11px;padding:3px 9px;border-radius:3px;background:rgba(155,202,62,.08);border:1px solid rgba(155,202,62,.15);color:var(--cdk-green);cursor:pointer;display:flex;align-items:center;gap:5px;}
+.fav-chip:hover{background:rgba(155,202,62,.15);}
+.fav-chip .fx{font-size:9px;opacity:.5;cursor:pointer;}
+.fav-chip .fx:hover{opacity:1;color:var(--cdk-red);}
+.fav-empty{font-size:11px;color:var(--muted);}
+
+/* ACTIVITY */
+.activity{background:var(--cdk-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.activity-hdr{padding:9px 14px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);border-bottom:1px solid var(--border);cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
+.activity.closed .activity-body{display:none;}
+.activity.closed .achv{transform:rotate(-90deg);}
+.achv{transition:transform .2s;}
+.activity-body{max-height:180px;overflow-y:auto;}
+.activity-row{padding:6px 14px;border-bottom:1px solid rgba(255,255,255,.03);font-size:11px;display:flex;gap:8px;align-items:center;}
+.activity-row:last-child{border-bottom:none;}
+.a-dot{width:5px;height:5px;border-radius:50%;flex:0 0 5px;}
+.a-dot.add{background:var(--cdk-green);}.a-dot.update{background:var(--cdk-blue);}.a-dot.remove{background:var(--cdk-red);}
+.a-text{color:rgba(255,255,255,.75);}
+.a-time{color:var(--muted);font-size:10px;margin-left:auto;white-space:nowrap;}
+
+/* CATEGORY */
+.cat{background:var(--cdk-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.cat-hdr{padding:11px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;}
+.cat-hdr:hover{background:rgba(255,255,255,.015);}
+.cat-hdr h2{font-size:13px;text-transform:uppercase;letter-spacing:.4px;color:var(--cdk-green);font-weight:800;}
+.cat-hdr .rt{display:flex;align-items:center;gap:8px;}
+.cnt{font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;background:rgba(155,202,62,.1);border:1px solid rgba(155,202,62,.2);color:var(--cdk-green);}
+.chv{color:var(--muted);font-size:14px;transition:transform .2s;}
+.cat.closed .chv{transform:rotate(-90deg);}
+.cat.closed .cat-body{display:none;}
+.cat-body{border-top:1px solid var(--border);}
+
+/* SUB */
+.sub{border-bottom:1px solid var(--border);}
+.sub:last-child{border-bottom:none;}
+.sub-hdr{padding:8px 14px 8px 26px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;font-size:12px;font-weight:700;color:rgba(255,255,255,.75);letter-spacing:.2px;}
+.sub-hdr:hover{background:rgba(255,255,255,.015);}
+.sub-hdr .sl{display:flex;align-items:center;gap:8px;}
+.sub-hdr .sr{display:flex;align-items:center;gap:8px;}
+.schv{color:var(--muted);font-size:11px;transition:transform .2s;}
+.sub.closed .schv{transform:rotate(-90deg);}
+.sub.closed .sub-body{display:none;}
+.sub-body{background:rgba(0,0,0,.08);}
+.reviewed{font-size:9px;color:var(--muted);padding:2px 6px;border-radius:2px;background:rgba(255,255,255,.03);white-space:nowrap;}
+.reviewed.stale{color:var(--cdk-orange);}
+.mark-reviewed{font-size:9px;color:var(--cdk-blue);cursor:pointer;white-space:nowrap;padding:2px 6px;border-radius:2px;border:1px solid rgba(91,155,213,.2);background:rgba(91,155,213,.06);}
+.mark-reviewed:hover{background:rgba(91,155,213,.12);}
+
+/* RESOURCE ROW */
+.rr{display:grid;grid-template-columns:1fr auto auto auto;gap:6px;align-items:center;padding:7px 14px 7px 40px;border-bottom:1px solid rgba(255,255,255,.04);transition:background .1s;font-size:12px;}
+.rr:hover{background:var(--row-hover);}
+.rn{display:flex;align-items:center;gap:6px;word-break:break-word;min-width:0;}
+.rn .ic{font-size:14px;flex:0 0 16px;text-align:center;}
+.new-badge{font-size:8px;font-weight:800;padding:1px 5px;border-radius:2px;background:rgba(155,202,62,.18);border:1px solid rgba(155,202,62,.3);color:var(--cdk-green);text-transform:uppercase;letter-spacing:.5px;flex:0 0 auto;}
+.rt-pill{font-size:9px;padding:2px 6px;border-radius:3px;background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--muted);text-transform:uppercase;letter-spacing:.3px;white-space:nowrap;}
+.ra{font-size:11px;font-weight:700;color:var(--cdk-blue);cursor:pointer;white-space:nowrap;}
+.ra:hover{text-decoration:underline;}
+.acts{display:flex;align-items:center;gap:5px;}
+.acts span{cursor:pointer;font-size:11px;opacity:.5;transition:opacity .12s;}
+.acts span:hover{opacity:1;}
+.lock-icon{color:var(--cdk-orange);}
+.rm-icon{color:var(--cdk-red);}
+.replace-icon{color:var(--cdk-blue);}
+.click-count{font-size:9px;color:var(--muted);padding:1px 5px;border-radius:2px;background:rgba(255,255,255,.03);white-space:nowrap;}
+
+/* META */
+.rr-meta{font-size:10px;color:var(--muted);padding:1px 14px 5px 62px;display:flex;gap:12px;flex-wrap:wrap;}
+.rr-meta .tag{display:flex;align-items:center;gap:3px;}
+
+/* VERSION HISTORY */
+.ver-panel{padding:4px 14px 8px 62px;font-size:10px;}
+.ver-row{display:flex;align-items:center;gap:8px;padding:3px 0;color:var(--muted);}
+.ver-row a{font-size:10px;}
+.ver-row .ver-restore{color:var(--cdk-green);cursor:pointer;font-size:10px;font-weight:700;}
+.ver-row .ver-restore:hover{text-decoration:underline;}
+
+/* ADD BAR */
+.add-bar{display:flex;gap:6px;padding:7px 14px 7px 26px;border-top:1px solid var(--border);flex-wrap:wrap;}
+.add-bar button{border:1px solid rgba(255,255,255,.08);background:#1e212a;color:var(--d-white);padding:5px 10px;border-radius:3px;cursor:pointer;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.3px;display:flex;align-items:center;gap:4px;white-space:nowrap;}
+.add-bar button:hover{filter:brightness(1.15);}
+.add-bar .bu{border-color:rgba(155,202,62,.2);color:var(--cdk-green);}
+.add-bar .bl{border-color:rgba(91,155,213,.2);color:var(--cdk-blue);}
+
+/* LINK TEST */
+.link-test-bar{background:var(--cdk-card);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.lt-result{font-size:11px;display:flex;align-items:center;gap:4px;}
+.lt-ok{color:var(--cdk-green);}.lt-warn{color:var(--cdk-orange);}.lt-err{color:var(--cdk-red);}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;}
+.modal{background:var(--cdk-card2);border:1px solid var(--border);border-radius:6px;width:100%;max-width:440px;padding:18px;box-shadow:0 8px 32px rgba(0,0,0,.5);}
+.modal h3{font-size:13px;text-transform:uppercase;letter-spacing:.3px;margin-bottom:12px;color:var(--d-white);}
+.modal label{display:block;margin:8px 0 4px;font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);}
+.modal input,.modal select,.modal textarea{width:100%;padding:7px 9px;border-radius:3px;border:1px solid rgba(255,255,255,.12);background:#12141b;color:var(--d-white);font-size:12px;outline:none;font-family:var(--font);}
+.modal input:focus,.modal select:focus,.modal textarea:focus{border-color:rgba(91,155,213,.5);}
+.modal-actions{display:flex;gap:8px;margin-top:14px;justify-content:flex-end;}
+.modal-actions button{padding:7px 14px;border-radius:3px;font-weight:700;font-size:11px;cursor:pointer;text-transform:uppercase;letter-spacing:.4px;border:none;}
+.btn-save{background:var(--cdk-green);color:#0e1017;}
+.btn-save:hover{background:#8ab835;}
+.btn-cancel{background:#22252f;color:var(--d-white);border:1px solid rgba(255,255,255,.12) !important;}
+
+/* DOC VIEWER / CHECKLIST */
+.doc-viewer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;}
+.doc-viewer{background:var(--cdk-card2);border:1px solid var(--border);border-radius:6px;width:100%;max-width:850px;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.5);}
+.doc-viewer-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.doc-viewer-header h3{font-size:13px;text-transform:uppercase;letter-spacing:.3px;}
+.doc-mode-toggle{display:flex;gap:0;border:1px solid var(--border);border-radius:3px;overflow:hidden;}
+.doc-mode-toggle button{padding:5px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;border:none;background:#22252f;color:var(--muted);cursor:pointer;}
+.doc-mode-toggle button.active{background:var(--cdk-green);color:#0e1017;}
+.doc-viewer-close{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:4px 8px;}
+.doc-viewer-close:hover{color:var(--d-white);}
+.doc-viewer-body{padding:14px 18px;overflow-y:auto;font-size:12px;line-height:1.7;color:rgba(255,255,255,.88);}
+.doc-viewer-body h1{font-size:15px;color:var(--cdk-green);margin:16px 0 8px 0;}
+.doc-viewer-body h1:first-child{margin-top:0;}
+.doc-viewer-body ul{margin:4px 0 8px 16px;}
+.doc-viewer-body li{margin-bottom:4px;}
+.doc-viewer-body a{color:var(--cdk-blue);}
+.doc-viewer-body .chk-item{display:flex;align-items:flex-start;gap:8px;padding:4px 0;}
+.doc-viewer-body .chk-item input[type=checkbox]{margin-top:4px;accent-color:var(--cdk-green);cursor:pointer;width:15px;height:15px;}
+.doc-viewer-body .chk-item.done{opacity:.55;text-decoration:line-through;}
+.doc-progress{padding:8px 16px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;font-size:11px;color:var(--muted);}
+.doc-progress .bar{flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,.06);overflow:hidden;}
+.doc-progress .bar-fill{height:100%;background:var(--cdk-green);border-radius:3px;transition:width .3s;}
+
+/* USERNAME */
+.username-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;}
+.username-box{background:var(--cdk-card2);border:1px solid var(--border);border-radius:6px;padding:24px;max-width:360px;width:100%;text-align:center;}
+.username-box h3{font-size:14px;margin-bottom:6px;color:var(--cdk-green);}
+.username-box p{font-size:12px;color:var(--muted);margin-bottom:14px;}
+.username-box input{width:100%;padding:9px 12px;border-radius:3px;border:1px solid rgba(255,255,255,.15);background:#12141b;color:var(--d-white);font-size:13px;outline:none;text-align:center;}
+.username-box button{margin-top:12px;padding:9px 24px;border:none;border-radius:3px;background:var(--cdk-green);color:#0e1017;font-weight:700;font-size:12px;cursor:pointer;text-transform:uppercase;letter-spacing:.4px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--cdk-card2);border:1px solid var(--border);border-radius:6px;padding:12px 18px;font-size:12px;color:var(--d-white);box-shadow:0 4px 20px rgba(0,0,0,.5);z-index:250;max-width:340px;animation:slideIn .3s ease;}
+@keyframes slideIn{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+
+
+.announcement-card{margin:10px 14px;padding:11px 12px;border:1px solid var(--border);border-radius:var(--radius);background:rgba(255,255,255,.03);}
+.announcement-card strong{display:block;font-size:12px;color:var(--cdk-green);text-transform:uppercase;letter-spacing:.3px;margin-bottom:4px;}
+.announcement-card p{font-size:12px;color:rgba(255,255,255,.78);line-height:1.45;margin:0;white-space:pre-wrap;}
+.announcement-meta{font-size:10px;color:var(--muted);margin-top:6px;}
+.announcement-actions{display:flex;justify-content:flex-end;margin-top:6px;}
+.announcement-delete{font-size:10px;padding:3px 8px;min-height:24px;border-color:rgba(226,75,91,.35);color:var(--cdk-red);}
+.announcement-add-bar{padding:10px 14px;border-top:1px solid var(--border);}
+
+.admin-action-btn{
+ font-size:10px;
+ font-weight:800;
+ text-transform:uppercase;
+ letter-spacing:.35px;
+ padding:3px 8px;
+ border-radius:3px;
+ border:1px solid rgba(255,255,255,.12);
+ background:#22252f;
+ color:var(--d-white);
+ cursor:pointer;
+ min-height:22px;
+}
+.admin-action-btn.delete{
+ border-color:rgba(226,75,91,.35);
+ color:var(--cdk-red);
+}
+.admin-action-btn.replace{
+ border-color:rgba(91,155,213,.35);
+ color:var(--cdk-blue);
+}
+.admin-action-btn.hide{
+ border-color:rgba(232,168,56,.35);
+ color:var(--cdk-orange);
+}
+.admin-action-btn:hover{filter:brightness(1.15);}
+
+.hidden{display:none !important;}
+
+/* MOBILE */
+@media(max-width:768px){
+ .topbar-inner{padding:8px 12px;}
+ .brand-title .title{font-size:12px;}
+ .top-right{gap:6px;}
+ .search-box{flex:1 1 100%;min-width:0;order:10;}
+ .page{padding:10px 12px 40px;}
+ .rr{grid-template-columns:1fr auto;padding:8px 12px 8px 28px;gap:4px;}
+ .rt-pill,.click-count{display:none;}
+ .rr .acts{grid-column:1/-1;justify-content:flex-end;}
+ .sub-hdr{padding-left:16px;}
+ .add-bar{padding-left:16px;}
+ .rr-meta{padding-left:44px;}
+ .dash{grid-template-columns:repeat(2,1fr);}
+}
+@media(max-width:480px){
+ .dash{grid-template-columns:1fr 1fr;}
+ .fav-bar{padding:8px 10px;}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<script>
+/* ═══════ CONFIG ═══════ */
+const ADMIN_PASS = "cdkadmin2026";
+const HUB_SUPABASE_URL = "https://kymtsyvkhimychsjmxhx.supabase.co";
+const HUB_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_fsIEns11G0krwfwSYOosaw_sl_2TSii";
+const HUB_STORAGE_BUCKET = "Documents";
+const NEW_BADGE_DAYS = 7;
+const STALE_REVIEW_DAYS = 90;
+
+const REGIONS = ["South","North","East","West","Central","All Regions"];
+
+const CATEGORIES = [
+{ id:"cdktools", title:"CDK Tools", subs:[
+  { id:"sso", title:"SSO & Access", items:[]},
+  { id:"crm", title:"CRM & Sales", items:[]},
+  { id:"analytics", title:"Analytics & Reporting", items:[]},
+  { id:"content", title:"Content & Enablement", items:[]},
+  { id:"utilities", title:"Utilities", items:[]},
+]},
+{ id:"cs", title:"Customer Success", subs:[
+  { id:"portals", title:"Portals & Knowledge Bases", items:[]},
+  { id:"engagement", title:"Engagement Resources", items:[]},
+]},
+{ id:"csp", title:"Customer Success Plans & Templates", subs:[
+  { id:"templates", title:"Plans & Templates", items:[] },
+]},
+{ id:"training", title:"Training & Onboarding", subs:[
+  { id:"onboarding", title:"Onboarding", items:[]},
+  { id:"platforms", title:"Learning Platforms", items:[]},
+  { id:"certs", title:"Product Certifications (CDKU)", items:[]},
+  { id:"industry", title:"Industry Knowledge", items:[]},
+  { id:"recordings", title:"Recordings", items:[]},
+  { id:"crmres", title:"CRM Resources", items:[]},
+]},
+{ id:"product", title:"Product Guides & Documentation", subs:[
+  { id:"docs", title:"Help & Documentation", items:[]},
+]},
+{ id:"meetings", title:"Meeting & Call Resources", subs:[
+  { id:"mres", title:"Meeting Resources", items:[] },
+]},
+{ id:"leadership", title:"Leadership Resources", subs:[
+  { id:"lres", title:"Leadership", items:[] },
+]},
+{ id:"support", title:"Support", subs:[
+  { id:"hr", title:"HR & Benefits", items:[]},
+  { id:"it", title:"IT & Access", items:[]},
+  { id:"travel", title:"Travel & Expense", items:[]},
+]},
+{ id:"smb", title:"Resources | Small Business", subs:[
+  { id:"smbres", title:"Small Business", items:[] },
+]},
+{ id:"csm", title:"Resources | CSM", subs:[
+  { id:"csmgen", title:"General", items:[]},
+]},
+{ id:"css", title:"Resources | CSM CSS", subs:[
+  { id:"cssreq", title:"CSS Requests", items:[]},
+]},
+{ id:"gtm", title:"GTM Documents", subs:[
+  { id:"gtmres", title:"GTM Resources", items:[] },
+]},
+];
+
+/* ═══════ ONBOARDING CHECKLIST ITEMS ═══════ */
+const OB_ITEMS = [];
+</script>
+
+<!-- RESOURCE HUB LOGIN -->
+<div class="username-overlay" id="usernameOverlay" style="display:none;">
+ <div class="username-box">
+  <h3>CSM Resource Hub Login</h3>
+  <p>Use the same email and password you use for CDKXGen.</p>
+  <input type="email" id="hubAuthEmail" placeholder="Email address" autocomplete="email"/>
+  <input type="password" id="hubAuthPassword" placeholder="Password" autocomplete="current-password" style="margin-top:8px;" onkeydown="if(event.key==='Enter')hubLogin()"/>
+  <br/><button onclick="hubLogin()">Login</button>
+  <p id="hubAuthStatus" style="font-size:11px;color:var(--muted);margin-top:10px;"></p>
+ </div>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+ <div class="topbar-inner">
+  <div class="brand">
+   <div class="logo-wrap"><span class="cdk-logo-text">CDK</span></div>
+   <div class="brand-title">
+    <div class="title">CSM Success <span>Resource Hub</span></div>
+    <div class="sub">Customer Success Resource Portal v3.0</div>
+   </div>
+  </div>
+  <div class="top-right">
+   <div class="search-box"><span class="ico">&#128269;</span><input type="text" id="searchInput" placeholder="Search resources, users..." oninput="render()"/></div>
+   <select class="region-sel" id="regionSel" onchange="render()"></select>
+   <div class="user-badge" id="userBadge" onclick="changeUser()" title="Click to change user">&#128100; <span id="userDisplay"></span></div>
+   <div class="tb" id="adminBtn" onclick="toggleAdmin()">&#128274; Admin</div>
+   <div class="tb green" id="adminUsersBtn" onclick="grantHubAdmin()" style="display:none;">+ Admin User</div>
+  </div>
+ </div>
+</div>
+
+<div class="page" id="page">
+ <div id="committeeSection"></div>
+ <div id="favBar" class="fav-bar hidden"></div>
+ <div id="activitySection" class="activity hidden"></div>
+ <div id="linkTestBar" class="link-test-bar hidden"></div>
+ <div id="mainContent"></div>
+</div>
+<div class="footer">CDK Global | Customer Success | CSM Success Resource Hub v3.0</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="linkModal" style="display:none;">
+ <div class="modal">
+  <h3>Add Link to <span id="modalCatName"></span></h3>
+  <label>Display Name</label><input type="text" id="linkName" placeholder="e.g. Totango Dashboard"/>
+  <label>URL</label><input type="url" id="linkUrl" placeholder="https://..."/>
+  <label>Type</label>
+  <select id="linkType"><option value="Link">Link</option><option value="Doc">Doc</option><option value="Guide">Guide</option><option value="PPTX">PPTX</option><option value="XLSX">XLSX</option><option value="PDF">PDF</option><option value="Folder">Folder</option><option value="Tool">Tool</option><option value="Video">Video</option></select>
+  <div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Cancel</button><button class="btn-save" onclick="saveLink()">Add Link</button></div>
+ </div>
+</div>
+<div class="modal-overlay" id="replaceModal" style="display:none;">
+ <div class="modal">
+  <h3>Replace: <span id="replaceName"></span></h3>
+  <label>New URL</label><input type="url" id="replaceUrl" placeholder="Paste updated URL..." onkeydown="if(event.key==='Enter')saveReplace()"/>
+  <div class="modal-actions"><button class="btn-cancel" onclick="closeReplace()">Cancel</button><button class="btn-save" onclick="saveReplace()">Replace</button></div>
+ </div>
+</div>
+<div class="modal-overlay" id="exportModal" style="display:none;">
+ <div class="modal">
+  <h3>Export / Import Hub Data</h3>
+  <label>Export (copy this JSON to back up all user-added data)</label>
+  <textarea id="exportArea" rows="8" style="font-family:var(--mono);font-size:10px;" readonly></textarea>
+  <label>Import (paste JSON to restore data)</label>
+  <textarea id="importArea" rows="4" style="font-family:var(--mono);font-size:10px;" placeholder="Paste exported JSON here..."></textarea>
+  <div class="modal-actions"><button class="btn-cancel" onclick="closeExport()">Close</button><button class="btn-save" onclick="doImport()">Import</button></div>
+ </div>
+</div>
+
+
+<div class="modal-overlay" id="announcementModal" style="display:none;">
+ <div class="modal">
+  <h3>Add Success Committee Announcement</h3>
+  <label>Title</label><input type="text" id="annTitle" placeholder="e.g. South Region Wins"/>
+  <label>Region</label>
+  <select id="annRegion"><option value="South">South</option><option value="North">North</option><option value="East">East</option><option value="West">West</option><option value="Central">Central</option><option value="All Regions">All Regions</option></select>
+  <label>Message</label><textarea id="annMessage" rows="5" placeholder="Enter announcement, news, wins, or goods here..." style="min-height:120px;"></textarea>
+  <div class="modal-actions"><button class="btn-cancel" onclick="closeAnnouncementModal()">Cancel</button><button class="btn-save" onclick="saveAnnouncement()">Publish</button></div>
+ </div>
+</div>
+
+<!-- DOC VIEWER -->
+<div class="doc-viewer-overlay" id="docViewer" style="display:none;">
+ <div class="doc-viewer">
+  <div class="doc-viewer-header">
+   <h3>&#128215; CSM Onboarding Guide</h3>
+   <div class="doc-mode-toggle"><button id="modeRead" class="active" onclick="setDocMode('read')">Read</button><button id="modeCheck" onclick="setDocMode('checklist')">Checklist</button></div>
+   <button class="doc-viewer-close" onclick="closeDoc()">&times;</button>
+  </div>
+  <div class="doc-viewer-body" id="docViewerBody"></div>
+  <div class="doc-progress hidden" id="docProgress"><span id="progText"></span><div class="bar"><div class="bar-fill" id="progBar"></div></div></div>
+ </div>
+</div>
+
+<div id="toastContainer"></div>
+
+<script>
+(function(){
+const SK="csmhub5_data",AK="csmhub5_log",FK="csmhub5_favs",UK="csmhub5_user",CK="csmhub5_clicks",RK="csmhub5_reviews",BK="csmhub5_checks",RGK="csmhub5_region";
+let isAdmin=false,modalTarget=null,replaceTarget=null,docMode="read"; localStorage.removeItem("csmhub_admin");
+
+/* ── User/Auth ── */
+let currentUser=localStorage.getItem(UK)||"";
+function setHubCurrentUser(user){
+  hubUserEmail = (user && user.email ? user.email : "").toLowerCase();
+  currentUser = (user && (user.user_metadata?.name || user.email)) || "";
+  if(currentUser){
+    localStorage.setItem(UK,currentUser);
+    document.getElementById("userDisplay").textContent=currentUser;
+    document.getElementById("usernameOverlay").style.display="none";
+  }
+}
+async function initHubAuth(){
+  const client=getHubClient();
+  if(!client){document.getElementById("usernameOverlay").style.display="flex";return;}
+  const res=await client.auth.getUser();
+  if(res.data && res.data.user){setHubCurrentUser(res.data.user); await loadHubCloudItems(); await loadHiddenDefaults(); await loadAnnouncements(); await refreshAdminAccess(false);}
+  else {document.getElementById("usernameOverlay").style.display="flex";}
+  render();
+}
+window.hubLogin=async function(){
+  const email=(document.getElementById("hubAuthEmail").value||"").trim();
+  const password=document.getElementById("hubAuthPassword").value||"";
+  const status=document.getElementById("hubAuthStatus");
+  if(!email||!password){status.textContent="Enter your CDKXGen email and password first.";return;}
+  const client=getHubClient();
+  const result=await client.auth.signInWithPassword({email,password});
+  if(result.error){status.textContent="Login failed: "+result.error.message;return;}
+  setHubCurrentUser(result.data.user);
+  await loadHubCloudItems();
+  await loadHiddenDefaults();
+  await loadAnnouncements();
+  await refreshAdminAccess(false);
+  showToast("Resource Hub login successful.");
+  render();
+};
+window.changeUser=async function(){
+  const client=getHubClient();
+  await client.auth.signOut();
+  currentUser=""; hubUserEmail=""; isAdmin=false;
+  localStorage.removeItem(UK);
+  document.getElementById("userDisplay").textContent="";
+  refreshAdminButton();
+  document.getElementById("usernameOverlay").style.display="flex";
+};
+
+/* ── Region ── */
+const regSel=document.getElementById("regionSel");
+REGIONS.forEach(r=>{const o=document.createElement("option");o.value=r;o.textContent=r;regSel.appendChild(o);});
+regSel.value=localStorage.getItem(RGK)||"South";
+regSel.onchange=async function(){localStorage.setItem(RGK,this.value); await loadAnnouncements(); render();};
+
+/* ── Storage helpers ── */
+function ld(k){try{const r=localStorage.getItem(k);return r?JSON.parse(r):null;}catch(e){return null;}}
+function sv(k,d){localStorage.setItem(k,JSON.stringify(d));}
+let userData=ld(SK)||{};
+let actLog=ld(AK)||[];
+let favs=ld(FK)||[];
+let clicks=ld(CK)||{};
+let reviews=ld(RK)||{};
+let checks=ld(BK)||{};
+let hubCloudItems=[];
+let hubHiddenDefaults=[];
+let hubAnnouncements=[];
+let hubUserEmail="";
+
+function getUI(cid,sid){const local=userData[cid+"::"+sid]||[]; const cloud=hubCloudItems.filter(x=>x.category_id===cid&&x.sub_id===sid).map((x,i)=>({name:x.name,type:x.type||"File",url:x.url||"#",cloudPath:x.cloud_path||"",cloudItemId:x.id,locked:true,uploadedBy:x.uploaded_by||"Cloud User",uploadedDate:x.uploaded_at||x.created_at||new Date().toISOString(),modifiedBy:x.modified_by||"",modifiedDate:x.modified_at||"",history:x.history||[],src:"cloud",cloudIdx:i})); return local.concat(cloud);}
+function setUI(cid,sid,items){userData[cid+"::"+sid]=items;sv(SK,userData);}
+function addLog(action,name,user){actLog.unshift({action,name,user:user||currentUser,time:new Date().toISOString()});if(actLog.length>100)actLog.length=100;sv(AK,actLog);}
+function trackClick(url){clicks[url]=(clicks[url]||0)+1;sv(CK,clicks);}
+function isNew(dateStr){if(!dateStr)return false;return(Date.now()-new Date(dateStr).getTime())<NEW_BADGE_DAYS*86400000;}
+
+/* ── Admin ── */
+function refreshAdminButton(){
+  const btn=document.getElementById("adminBtn");
+  const adminUsersBtn=document.getElementById("adminUsersBtn");
+  if(!btn)return;
+  if(isAdmin){
+    btn.classList.add("active");
+    btn.innerHTML="&#128275; Admin (ON)";
+    if(adminUsersBtn) adminUsersBtn.style.display="inline-flex";
+  } else {
+    btn.classList.remove("active");
+    btn.innerHTML="&#128274; Admin";
+    if(adminUsersBtn) adminUsersBtn.style.display="none";
+  }
+}
+async function isCurrentHubAdmin(){
+  const client=getHubClient();
+  const user=await getHubUser();
+  if(!client||!user||!user.email)return false;
+  const email=user.email.toLowerCase();
+  const res=await client.from("resource_hub_admins").select("email").eq("email",email).maybeSingle();
+  return !res.error && !!res.data;
+}
+async function refreshAdminAccess(renderAfter=true){
+  isAdmin=await isCurrentHubAdmin();
+  refreshAdminButton();
+  if(renderAfter)render();
+  return isAdmin;
+}
+window.toggleAdmin=async function(){
+  if(isAdmin){showToast("Admin mode is already enabled. Delete and Hide buttons are visible on resource rows.");return;}
+  const ok=await refreshAdminAccess(false);
+  if(ok){showToast("Admin mode enabled. Delete icons are now visible for uploaded hub files and links.");render();}
+  else{alert("Admin access is not assigned to this login. Ask an existing hub admin to add your email.");}
+};
+window.grantHubAdmin=async function(){
+  if(!isAdmin){alert("Admin mode required.");return;}
+  const email=(prompt("Enter the email address to grant Resource Hub admin access:")||"").trim().toLowerCase();
+  if(!email)return;
+  const user=await getHubUser();
+  const client=getHubClient();
+  const res=await client.from("resource_hub_admins").upsert({email,added_by:user.id},{onConflict:"email"});
+  if(res.error){alert("Could not add admin: "+res.error.message);return;}
+  showToast(email+" added as Resource Hub admin.");
+};
+
+/* ── Favorites ── */
+function toggleFav(name,url){const i=favs.findIndex(f=>f.url===url);if(i>=0)favs.splice(i,1);else favs.push({name,url});sv(FK,favs);render();}
+function isFav(url){return favs.some(f=>f.url===url);}
+function renderFavs(){const bar=document.getElementById("favBar"); if(bar) bar.classList.add("hidden");}
+
+/* ── Activity ── */
+function renderActivity(){const s=document.getElementById("activitySection"); if(s) s.classList.add("hidden");}
+
+/* ── Dashboard ── */
+function renderDash(){
+  const d=document.getElementById("committeeSection");
+  if(!d)return;
+  const region=(document.getElementById("regionSel")&&document.getElementById("regionSel").value)||"South";
+  const visible=(hubAnnouncements||[]).filter(a=>a.region===region||a.region==="All Regions");
+  let body="";
+  if(!visible.length){
+    body='<div style="padding:18px 14px;text-align:center;color:var(--muted);font-size:12px;">No announcements yet.</div>';
+  } else {
+    body=visible.map(a=>`<div class="announcement-card"><strong>${esc(a.title||"Announcement")}</strong><p>${esc(a.message||"")}</p><div class="announcement-meta">${esc(a.region||"")} | ${a.created_at?new Date(a.created_at).toLocaleDateString():""}</div>${isAdmin?`<div class="announcement-actions"><button class="announcement-delete" onclick="deleteAnnouncement('${a.id}')">Delete</button></div>`:""}</div>`).join("");
+  }
+  if(isAdmin){
+    body += '<div class="announcement-add-bar"><button class="mini-btn active" onclick="openAnnouncementModal()">Add Announcement</button></div>';
+  }
+  d.innerHTML=`<div class="cat closed" id="successCommitteePanel"><div class="cat-hdr" onclick="this.parentElement.classList.toggle('closed')"><h2>&#128227; Success Committee | News & Goods (${esc(region)})</h2><div class="rt"><span class="chv">&#9660;</span></div></div><div class="cat-body">${body}</div></div>`;
+}
+
+/* ── Render ── */
+function render(){renderDash();renderFavs();renderActivity();const main=document.getElementById("mainContent");main.innerHTML="";const q=(document.getElementById("searchInput").value||"").toLowerCase();let any=false;
+CATEGORIES.forEach(cat=>{let catMatch=false;const sec=document.createElement("div");sec.className="cat closed";let total=0;cat.subs.forEach(s=>{total+=s.items.length+getUI(cat.id,s.id).length;});
+const hdr=document.createElement("div");hdr.className="cat-hdr";hdr.innerHTML='<h2>'+esc(cat.title)+'</h2><div class="rt"><span class="cnt">'+total+'</span><span class="chv">&#9660;</span></div>';hdr.onclick=()=>sec.classList.toggle("closed");sec.appendChild(hdr);
+const body=document.createElement("div");body.className="cat-body";
+cat.subs.forEach(sub=>{const defs=sub.items.filter(r=>!isDefaultHidden(cat.id,sub.id,r));const ui=getUI(cat.id,sub.id);let all=defs.map((r,i)=>({...r,src:"default",defaultIdx:i})).concat(ui.map((r,i)=>({...r,src:"user",uidx:i})));
+if(q)all=all.filter(r=>r.name.toLowerCase().includes(q)||r.type.toLowerCase().includes(q)||(r.uploadedBy||"").toLowerCase().includes(q));
+if(q&&!all.length)return;if(all.length)catMatch=true;
+const sd=document.createElement("div");sd.className="sub";
+const rkey=cat.id+"::"+sub.id;const revData=reviews[rkey];const revDate=revData?new Date(revData.date):null;const stale=revDate?(Date.now()-revDate.getTime())>STALE_REVIEW_DAYS*86400000:true;
+const sh=document.createElement("div");sh.className="sub-hdr";
+let shRight='<span class="sr">';
+if(revDate){const rd=(revDate.getMonth()+1)+"/"+revDate.getDate()+"/"+revDate.getFullYear();shRight+='<span class="reviewed'+(stale?" stale":"")+'">Reviewed '+rd+(revData.by?" by "+esc(revData.by):"")+'</span>';}
+if(isAdmin||!revDate)shRight+='<span class="mark-reviewed" data-review="'+rkey+'">&#10003; Mark Reviewed</span>';
+shRight+='<span class="schv">&#9660;</span></span>';
+sh.innerHTML='<span class="sl">'+esc(sub.title)+' ('+all.length+')</span>'+shRight;
+sh.onclick=e=>{if(e.target.dataset.review){e.stopPropagation();reviews[e.target.dataset.review]={date:new Date().toISOString(),by:currentUser};sv(RK,reviews);render();return;}sd.classList.toggle("closed");};
+sd.appendChild(sh);
+const sb=document.createElement("div");sb.className="sub-body";
+all.forEach(r=>{const row=document.createElement("div");row.className="rr";const icon=r.icon||getIcon(r.type);const isInline=r.inline&&r.url==="#onboarding-doc";const faved=isFav(r.url);const cc=clicks[r.url]||0;
+let nameHtml='<div class="rn"><span class="ic">'+icon+'</span>'+esc(r.name);
+if(r.src==="user"&&isNew(r.uploadedDate))nameHtml+=' <span class="new-badge">New</span>';
+nameHtml+='</div>';
+const starHtml='<span style="cursor:pointer;font-size:11px;color:'+(faved?'var(--cdk-orange)':'var(--muted)')+';opacity:'+(faved?'1':'.4')+'" data-fav="1" title="'+(faved?'Unfavorite':'Favorite')+'">&#11088;</span>';
+let actHtml=isInline?'<span class="ra" data-view="1" style="cursor:pointer">View &#128196;</span>':'<a class="ra" href="'+esc(r.url)+'" target="_blank" data-track="'+esc(r.url)+'">Open &#8599;</a>';
+let actsHtml='<div class="acts">';
+if(cc>0)actsHtml+='<span class="click-count">'+cc+' click'+(cc!==1?"s":"")+'</span>';
+actsHtml+=starHtml;
+if(isAdmin && r.src==="default"){
+actsHtml+='<button class="admin-action-btn hide" data-hide-default="1" title="Hide this built-in resource for everyone">Hide</button>';
+}
+if(r.src==="user"){
+if(isAdmin){
+actsHtml+='<button class="admin-action-btn replace" data-replace="1" title="Replace link">Replace</button>';
+actsHtml+='<button class="admin-action-btn delete" data-rm="1" title="Delete uploaded file or link">Delete</button>';
+if(r.history&&r.history.length)actsHtml+='<span style="color:var(--muted)" data-history="1" title="Version history">&#128336;</span>';
+} else {
+actsHtml+='<span class="lock-icon" title="Admin managed">&#128274;</span>';
+}
+}
+actsHtml+='</div>';
+row.innerHTML=nameHtml+'<span class="rt-pill">'+esc(r.type)+'</span>'+actHtml+actsHtml;
+sb.appendChild(row);
+// meta
+if(r.src==="user"&&r.uploadedBy){const meta=document.createElement("div");meta.className="rr-meta";const ud=r.modifiedDate||r.uploadedDate;const d=ud?new Date(ud):null;const ds=d?((d.getMonth()+1)+"/"+d.getDate()+"/"+d.getFullYear()):"";
+let mh='<span class="tag">&#128100; '+(r.modifiedBy||r.uploadedBy)+'</span>';if(ds)mh+='<span class="tag">&#128197; '+ds+'</span>';if(r.modifiedBy&&r.modifiedBy!==r.uploadedBy)mh+='<span class="tag">Updated by '+esc(r.modifiedBy)+'</span>';
+meta.innerHTML=mh;sb.appendChild(meta);}
+// events
+const favBtn=row.querySelector("[data-fav]");if(favBtn)favBtn.onclick=e=>{e.stopPropagation();toggleFav(r.name,r.url);};
+const viewBtn=row.querySelector("[data-view]");if(viewBtn)viewBtn.onclick=()=>openDoc();
+const trackA=row.querySelector("[data-track]");if(trackA)trackA.addEventListener("click",()=>trackClick(r.url));
+const repBtn=row.querySelector("[data-replace]");if(repBtn)repBtn.onclick=e=>{e.stopPropagation();openReplace(cat.id,sub.id,r.uidx,r.name);};
+const rmBtn=row.querySelector("[data-rm]");if(rmBtn)rmBtn.onclick=async e=>{e.stopPropagation();if(!isAdmin){alert("Admin access required.");return;}if(confirm('Remove "'+r.name+'"?')){try{if(r.cloudItemId){await deleteHubCloudItem(r);}else{if(r.cloudPath){const client=getHubClient();await client.storage.from(HUB_STORAGE_BUCKET).remove([r.cloudPath]);}const items=(userData[cat.id+"::"+sub.id]||[]);items.splice(r.uidx,1);setUI(cat.id,sub.id,items);}addLog("Removed",r.name,currentUser);render();}catch(err){alert("Delete failed: "+err.message);}}};
+const hideDefaultBtn=row.querySelector("[data-hide-default]");if(hideDefaultBtn)hideDefaultBtn.onclick=async e=>{e.stopPropagation();if(!isAdmin){alert("Admin access required.");return;}if(confirm('Hide built-in resource "'+r.name+'" for all users?')){try{await hideDefaultResource(cat.id,sub.id,r);addLog("Hidden",r.name,currentUser);render();}catch(err){alert("Hide failed: "+err.message);}}};
+const lockBtn=row.querySelector("[data-lock]");if(lockBtn)lockBtn.onclick=e=>{e.stopPropagation();const items=getUI(cat.id,sub.id);items[r.uidx].locked=true;setUI(cat.id,sub.id,items);render();};
+const unlockBtn=row.querySelector("[data-unlock]");if(unlockBtn)unlockBtn.onclick=e=>{e.stopPropagation();const items=getUI(cat.id,sub.id);items[r.uidx].locked=false;setUI(cat.id,sub.id,items);render();};
+const histBtn=row.querySelector("[data-history]");if(histBtn)histBtn.onclick=e=>{e.stopPropagation();showHistory(cat.id,sub.id,r.uidx,r);};
+});
+// add bar
+const bar=document.createElement("div");bar.className="add-bar";
+const bu=document.createElement("button");bu.className="bu";bu.innerHTML="&#128228; Upload File";bu.onclick=()=>triggerUpload(cat.id,sub.id,cat.title+" / "+sub.title);
+const bl=document.createElement("button");bl.className="bl";bl.innerHTML="&#128279; Add Link";bl.onclick=()=>openModal(cat.id,sub.id,cat.title+" / "+sub.title);
+bar.appendChild(bu);bar.appendChild(bl);
+sb.ondragover=e=>{e.preventDefault();sb.style.background="rgba(155,202,62,.04)";};sb.ondragleave=()=>{sb.style.background="";};sb.ondrop=e=>{e.preventDefault();sb.style.background="";handleFiles(e.dataTransfer.files,cat.id,sub.id,cat.title+" / "+sub.title);};
+sb.appendChild(bar);sd.appendChild(sb);body.appendChild(sd);});
+if(q&&!catMatch)return;any=true;sec.appendChild(body);main.appendChild(sec);});
+if(!any)main.innerHTML='<div class="no-results">No resources match your search.</div>';}
+
+/* ── Version History ── */
+function showHistory(cid,sid,idx,r){if(!r.history||!r.history.length){alert("No version history available.");return;}
+let msg="Version History for: "+r.name+"\n\n";r.history.forEach((v,i)=>{const d=new Date(v.date);msg+=(i+1)+". "+v.url.substring(0,60)+"...\n   Changed by: "+v.by+" on "+(d.getMonth()+1)+"/"+d.getDate()+"/"+d.getFullYear()+"\n\n";});
+const restoreIdx=prompt(msg+"Enter version number to restore (or cancel):");
+if(restoreIdx){const vi=parseInt(restoreIdx)-1;if(vi>=0&&vi<r.history.length){const items=getUI(cid,sid);const item=items[idx];if(!item.history)item.history=[];item.history.push({url:item.url,by:currentUser,date:new Date().toISOString()});item.url=r.history[vi].url;item.modifiedBy=currentUser;item.modifiedDate=new Date().toISOString();setUI(cid,sid,items);addLog("Restored",item.name,currentUser);render();showToast("Restored to version "+(vi+1));}}}
+
+/* ── Upload ── */
+function getHubClient(){
+  if(!window.supabase || !window.supabase.createClient){
+    showToast("Supabase library did not load. Refresh and try again.");
+    return null;
+  }
+  if(!window.csmHubSupabaseClient){
+    window.csmHubSupabaseClient = window.supabase.createClient(HUB_SUPABASE_URL, HUB_SUPABASE_PUBLISHABLE_KEY, {
+      auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
+    });
+  }
+  return window.csmHubSupabaseClient;
+}
+async function getHubUser(){
+  const client=getHubClient(); if(!client) return null;
+  const res=await client.auth.getUser();
+  return res.data && res.data.user ? res.data.user : null;
+}
+async function requireHubUser(){
+  let user=await getHubUser();
+  if(user) return user;
+  const email=prompt("Enter your CDKXGen email to upload to the Resource Hub:");
+  if(!email) return null;
+  const password=prompt("Enter your CDKXGen password:");
+  if(!password) return null;
+  const client=getHubClient();
+  const result=await client.auth.signInWithPassword({email,password});
+  if(result.error){alert("Login failed: "+result.error.message);return null;}
+  return result.data.user;
+}
+function hubSafeSegment(value){
+  return String(value||"General").trim().replace(/[^a-zA-Z0-9._-]+/g,"_").replace(/^_+|_+$/g,"") || "General";
+}
+function hubSafeFileName(value){
+  return String(value||"file").trim().replace(/[^a-zA-Z0-9._ -]+/g,"_").replace(/\s+/g,"_") || "file";
+}
+async function signedHubUrl(path){
+  const client=getHubClient();
+  const res=await client.storage.from(HUB_STORAGE_BUCKET).createSignedUrl(path,60*60*24*7);
+  return res.error ? "" : res.data.signedUrl;
+}
+function defaultResourceKey(cid,sid,r){
+  return cid+"::"+sid+"::"+(r.name||"")+"::"+(r.url||"");
+}
+function isDefaultHidden(cid,sid,r){
+  const key=defaultResourceKey(cid,sid,r);
+  return (hubHiddenDefaults||[]).some(x=>x.resource_key===key);
+}
+async function loadHiddenDefaults(){
+  const client=getHubClient(); if(!client) return;
+  const res=await client.from("resource_hub_hidden_defaults").select("*");
+  if(res.error){console.warn("Hidden default resources load failed",res.error); hubHiddenDefaults=[]; return;}
+  hubHiddenDefaults=res.data||[];
+}
+async function hideDefaultResource(cid,sid,r){
+  const user=await getHubUser();
+  if(!user) throw new Error("Login required");
+  const client=getHubClient();
+  const item={resource_key:defaultResourceKey(cid,sid,r),category_id:cid,sub_id:sid,name:r.name||"",url:r.url||"",hidden_by:user.id,hidden_by_email:user.email||hubUserEmail||currentUser};
+  const res=await client.from("resource_hub_hidden_defaults").upsert(item,{onConflict:"resource_key"});
+  if(res.error) throw res.error;
+  await loadHiddenDefaults();
+}
+async function loadHubCloudItems(){
+  const client=getHubClient(); if(!client) return;
+  const res=await client.from("resource_hub_items").select("*").order("uploaded_at",{ascending:false});
+  if(res.error){console.warn("Resource hub cloud item load failed",res.error); hubCloudItems=[]; return;}
+  hubCloudItems=res.data||[];
+  for(const item of hubCloudItems){
+    if(item.cloud_path){ item.url=await signedHubUrl(item.cloud_path); }
+  }
+}
+async function loadAnnouncements(){
+  const client=getHubClient(); if(!client) return;
+  const region=(document.getElementById("regionSel")&&document.getElementById("regionSel").value)||"South";
+  const res=await client.from("success_announcements").select("*").or(`region.eq.${region},region.eq.All Regions`).order("created_at",{ascending:false});
+  if(res.error){console.warn("Announcements load failed",res.error); hubAnnouncements=[]; return;}
+  hubAnnouncements=res.data||[];
+}
+window.openAnnouncementModal=function(){
+  if(!isAdmin){alert("Admin mode required.");return;}
+  document.getElementById("annTitle").value="";
+  document.getElementById("annMessage").value="";
+  document.getElementById("annRegion").value=(document.getElementById("regionSel")&&document.getElementById("regionSel").value)||"South";
+  document.getElementById("announcementModal").style.display="flex";
+  setTimeout(()=>document.getElementById("annTitle").focus(),50);
+};
+window.closeAnnouncementModal=function(){document.getElementById("announcementModal").style.display="none";};
+window.saveAnnouncement=async function(){
+  if(!isAdmin){alert("Admin mode required.");return;}
+  const user=await getHubUser(); if(!user){alert("Login required.");return;}
+  const title=(document.getElementById("annTitle").value||"").trim();
+  const message=(document.getElementById("annMessage").value||"").trim();
+  const region=document.getElementById("annRegion").value||"South";
+  if(!title||!message){alert("Title and message are required.");return;}
+  const client=getHubClient();
+  const res=await client.from("success_announcements").insert({title,message,region,created_by:user.id,created_by_email:user.email}).select().single();
+  if(res.error){alert("Could not publish announcement: "+res.error.message);return;}
+  closeAnnouncementModal();
+  await loadAnnouncements();
+  render();
+  showToast("Announcement published.");
+};
+window.deleteAnnouncement=async function(id){
+  if(!isAdmin){alert("Admin mode required.");return;}
+  if(!confirm("Delete this announcement?"))return;
+  const client=getHubClient();
+  const res=await client.from("success_announcements").delete().eq("id",id);
+  if(res.error){alert("Could not delete announcement: "+res.error.message);return;}
+  await loadAnnouncements();
+  render();
+};
+document.getElementById("announcementModal").onclick=function(e){if(e.target===this)closeAnnouncementModal();};
+async function saveHubCloudItem(item){
+  const client=getHubClient();
+  const res=await client.from("resource_hub_items").insert(item).select().single();
+  if(res.error){throw res.error;}
+  const saved=res.data;
+  if(saved.cloud_path){ saved.url=await signedHubUrl(saved.cloud_path); }
+  hubCloudItems.unshift(saved);
+  return saved;
+}
+async function deleteHubCloudItem(item){
+  const client=getHubClient();
+  if(item.cloud_path){ await client.storage.from(HUB_STORAGE_BUCKET).remove([item.cloud_path]); }
+  const res=await client.from("resource_hub_items").delete().eq("id",item.cloudItemId);
+  if(res.error){throw res.error;}
+  hubCloudItems=hubCloudItems.filter(x=>x.id!==item.cloudItemId);
+}
+function triggerUpload(cid,sid,label){
+  const inp=document.createElement("input");
+  inp.type="file";
+  inp.multiple=true;
+  inp.onchange=()=>handleFiles(inp.files,cid,sid,label);
+  inp.click();
+}
+async function handleFiles(files,cid,sid,label){
+  if(!files||!files.length)return;
+  const user=await requireHubUser();
+  if(!user)return;
+  const client=getHubClient();
+  for(const f of Array.from(files)){
+    const ext=f.name.split(".").pop().toUpperCase();
+    const map={DOCX:"Doc",DOC:"Doc",PPTX:"PPTX",PPT:"PPTX",XLSX:"XLSX",XLS:"XLSX",PDF:"PDF",CSV:"XLSX",MP4:"Video",MOV:"Video",HTML:"Link"};
+    const cloudPath="CSM_Hub/"+hubSafeSegment(cid)+"/"+hubSafeSegment(sid)+"/"+Date.now()+"_"+hubSafeFileName(f.name);
+    const up=await client.storage.from(HUB_STORAGE_BUCKET).upload(cloudPath,f,{upsert:false});
+    if(up.error){alert("Upload failed for "+f.name+": "+up.error.message);return;}
+    try{
+      await saveHubCloudItem({category_id:cid,sub_id:sid,name:f.name,type:map[ext]||"File",url:"",cloud_path:cloudPath,uploaded_by:currentUser,created_by:user.id,history:[]});
+    }catch(err){alert("Upload saved to storage, but hub listing failed: "+err.message);return;}
+    addLog("Added",f.name,currentUser);
+  }
+  render();
+  showToast(files.length+" file(s) uploaded to "+label+". Admin required to delete or replace.");
+}
+
+/* ── Link Modal ── */
+window.openModal=function(cid,sid,label){modalTarget={cid,sid};document.getElementById("modalCatName").textContent=label;document.getElementById("linkName").value="";document.getElementById("linkUrl").value="";document.getElementById("linkType").value="Link";document.getElementById("linkModal").style.display="flex";setTimeout(()=>document.getElementById("linkName").focus(),50);};
+window.closeModal=function(){document.getElementById("linkModal").style.display="none";};
+window.saveLink=async function(){const name=document.getElementById("linkName").value.trim();const url=document.getElementById("linkUrl").value.trim();const type=document.getElementById("linkType").value;if(!name||!url){alert("Name and URL required.");return;}const user=await requireHubUser(); if(!user)return; try{await saveHubCloudItem({category_id:modalTarget.cid,sub_id:modalTarget.sid,name,type,url,cloud_path:"",uploaded_by:currentUser,created_by:user.id,history:[]});addLog("Added",name,currentUser);closeModal();render();}catch(err){alert("Could not add link: "+err.message);}};
+document.getElementById("linkModal").onclick=function(e){if(e.target===this)closeModal();};
+
+/* ── Replace Modal ── */
+window.openReplace=function(cid,sid,idx,name){replaceTarget={cid,sid,idx};document.getElementById("replaceName").textContent=name;document.getElementById("replaceUrl").value="";document.getElementById("replaceModal").style.display="flex";setTimeout(()=>document.getElementById("replaceUrl").focus(),50);};
+window.closeReplace=function(){document.getElementById("replaceModal").style.display="none";};
+window.saveReplace=function(){const url=document.getElementById("replaceUrl").value.trim();if(!url){alert("Please enter the new URL.");return;}const items=getUI(replaceTarget.cid,replaceTarget.sid);const item=items[replaceTarget.idx];if(!item.history)item.history=[];item.history.push({url:item.url,by:item.modifiedBy||item.uploadedBy||"Unknown",date:item.modifiedDate||item.uploadedDate||new Date().toISOString()});if(item.history.length>3)item.history.shift();item.url=url;item.modifiedBy=currentUser;item.modifiedDate=new Date().toISOString();setUI(replaceTarget.cid,replaceTarget.sid,items);addLog("Replaced",item.name,currentUser);closeReplace();render();showToast("Replaced successfully. Previous version saved to history.");};
+document.getElementById("replaceModal").onclick=function(e){if(e.target===this)closeReplace();};
+
+/* ── Export / Import ── */
+window.openExport=function(){const data={userData,actLog,clicks,reviews,exportDate:new Date().toISOString(),exportedBy:currentUser};document.getElementById("exportArea").value=JSON.stringify(data,null,2);document.getElementById("importArea").value="";document.getElementById("exportModal").style.display="flex";};
+window.closeExport=function(){document.getElementById("exportModal").style.display="none";};
+window.doImport=function(){const raw=document.getElementById("importArea").value.trim();if(!raw){alert("Paste JSON data first.");return;}try{const d=JSON.parse(raw);if(d.userData){userData=d.userData;sv(SK,userData);}if(d.actLog){actLog=d.actLog;sv(AK,actLog);}if(d.clicks){clicks=d.clicks;sv(CK,clicks);}if(d.reviews){reviews=d.reviews;sv(RK,reviews);}closeExport();render();showToast("Data imported successfully from "+esc(d.exportedBy||"unknown")+" ("+new Date(d.exportDate).toLocaleDateString()+")");}catch(e){alert("Invalid JSON. Check the format and try again.");}};
+document.getElementById("exportModal").onclick=function(e){if(e.target===this)closeExport();};
+
+/* ── Link Tester ── */
+window.testLinks=function(){const bar=document.getElementById("linkTestBar");bar.classList.remove("hidden");bar.innerHTML='<span class="tb green">&#128269; Testing links...</span>';let total=0,ok=0,fail=0;const urls=[];
+CATEGORIES.forEach(c=>c.subs.forEach(s=>{s.items.forEach(i=>{if(i.url&&!i.url.startsWith("#"))urls.push({name:i.name,url:i.url});});getUI(c.id,s.id).forEach(i=>{if(i.url&&!i.url.startsWith("#")&&!i.url.startsWith("blob:"))urls.push({name:i.name,url:i.url});});}));
+total=urls.length;let checked=0;
+if(!total){bar.innerHTML='<span>No testable links found.</span>';return;}
+// We can't truly test CORS-blocked URLs, so we'll check for obvious issues
+urls.forEach(u=>{try{new URL(u.url);ok++;}catch(e){fail++;}checked++;});
+setTimeout(()=>{bar.innerHTML='<span class="lt-result lt-ok">&#10003; '+ok+' valid URLs</span><span class="lt-result lt-warn">&#9888; '+fail+' malformed URLs</span><span class="lt-result" style="color:var(--muted)">Note: Full link validation requires server-side testing. URL format check only.</span>';},500);};
+
+/* ── Doc Viewer with Checklist Mode ── */
+window.openDoc=function(){docMode="read";document.getElementById("modeRead").classList.add("active");document.getElementById("modeCheck").classList.remove("active");renderDoc();document.getElementById("docViewer").style.display="flex";};
+window.closeDoc=function(){document.getElementById("docViewer").style.display="none";};
+document.getElementById("docViewer").onclick=function(e){if(e.target===this)closeDoc();};
+window.setDocMode=function(mode){docMode=mode;document.getElementById("modeRead").classList.toggle("active",mode==="read");document.getElementById("modeCheck").classList.toggle("active",mode==="checklist");renderDoc();};
+function renderDoc(){const body=document.getElementById("docViewerBody");const prog=document.getElementById("docProgress");
+if(docMode==="read"){prog.classList.add("hidden");let html="";const weeks=[1,2,3,4];weeks.forEach(w=>{html+="<h1>Week "+w+": "+(w===1?"Foundations & Product Immersion":w===2?"Customer Understanding & Process Mastery":w===3?"Strategic Engagement & KPI Alignment":"Ownership & Continuous Improvement")+"</h1><ul>";OB_ITEMS.filter(i=>i.w===w).forEach(i=>{html+="<li>"+i.t+"</li>";});html+="</ul>";});body.innerHTML=html;}
+else{prog.classList.remove("hidden");const checked=checks[currentUser]||{};let html="";const weeks=[1,2,3,4];const titles=["Foundations & Product Immersion","Customer Understanding & Process Mastery","Strategic Engagement & KPI Alignment","Ownership & Continuous Improvement"];
+weeks.forEach(w=>{html+="<h1>Week "+w+": "+titles[w-1]+"</h1>";OB_ITEMS.filter(i=>i.w===w).forEach((item,idx)=>{const key="w"+w+"_"+idx;const done=!!checked[key];html+='<div class="chk-item'+(done?" done":"")+'"><input type="checkbox" data-key="'+key+'"'+(done?" checked":"")+'/><span>'+item.t+'</span></div>';});});
+body.innerHTML=html;const total=OB_ITEMS.length;const doneCount=Object.values(checked).filter(Boolean).length;document.getElementById("progText").textContent=doneCount+"/"+total+" complete";document.getElementById("progBar").style.width=(doneCount/total*100)+"%";
+body.querySelectorAll("input[type=checkbox]").forEach(cb=>{cb.onchange=function(){const userChecks=checks[currentUser]||{};userChecks[this.dataset.key]=this.checked;checks[currentUser]=userChecks;sv(BK,checks);renderDoc();};});}}
+
+/* ── Toast ── */
+function showToast(msg){const t=document.createElement("div");t.className="toast";t.textContent=msg;document.getElementById("toastContainer").appendChild(t);setTimeout(()=>t.remove(),4000);}
+
+/* ── Helpers ── */
+function esc(s){const d=document.createElement("div");d.textContent=s;return d.innerHTML;}
+function getIcon(t){return{Doc:"\ud83d\udcc4",Guide:"\ud83d\udcd6",PPTX:"\ud83d\udcca",XLSX:"\ud83d\udcca",PDF:"\ud83d\udcc3",Folder:"\ud83d\udcc1",Link:"\ud83d\udd17",Tool:"\u2699\ufe0f",Video:"\ud83c\udfa5",File:"\ud83d\udcce"}[t]||"\ud83d\udcce";}
+
+/* ── Backup reminder ── */
+const lastBackup=localStorage.getItem("csmhub5_lastbackup");const now=Date.now();
+if(!lastBackup||now-parseInt(lastBackup)>30*86400000){if(currentUser&&isAdmin){setTimeout(()=>showToast("&#128230; Monthly reminder: Consider exporting a backup of hub data (Admin > Export/Import)."),3000);}localStorage.setItem("csmhub5_lastbackup",now.toString());}
+
+initHubAuth();
+})();
+</script>
+</body>
+</html>

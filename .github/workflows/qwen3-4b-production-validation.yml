@@ -85,6 +85,9 @@ jobs:
       - name: Run real CDKGenAI workflow validation
         run: python3 engineering/model_validation/validate_qwen3_4b.py
 
+      - name: Run semantic quality loop round two
+        run: python3 engineering/model_validation/validate_qwen3_4b_quality_round2.py
+
       - name: Record runtime and model evidence
         if: always()
         run: |

@@ -70,7 +70,6 @@ jobs:
             --parallel 1 \
             --batch-size 256 \
             --ubatch-size 128 \
-            --mlock 0 \
             --log-file llama-server.log &
           echo $! > llama-server.pid
           for attempt in $(seq 1 120); do

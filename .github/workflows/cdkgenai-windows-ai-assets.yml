@@ -1,0 +1,96 @@
+name: CDKGenAI Windows AI Assets
+
+on:
+  push:
+    branches:
+      - engineering/qwen3-4b-production-validation
+    paths:
+      - '.github/workflows/cdkgenai-windows-ai-assets.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/cdkgenai-windows-ai-assets.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  assemble-windows-assets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      RUNTIME_URL: https://github.com/ggml-org/llama.cpp/releases/download/b10069/llama-b10069-bin-win-cpu-x64.zip
+      RUNTIME_ARCHIVE: llama-b10069-bin-win-cpu-x64.zip
+      MODEL_URL: https://huggingface.co/Qwen/Qwen3-4B-GGUF/resolve/main/Qwen3-4B-Q4_K_M.gguf?download=true
+      MODEL_FILE: CDKGenAI-Assistant.gguf
+      MODEL_SHA256: 7485fe6f11af29433bc51cab58009521f205840f5b4ae3a32fa7f92e8534fdf5
+      MODEL_SIZE: '2497280256'
+
+    steps:
+      - name: Download and verify Windows runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p payload/AI/runtime/windows-x64 payload/AI/models evidence
+          curl --fail --location --retry 8 --retry-all-errors --continue-at - \
+            --output "${RUNTIME_ARCHIVE}" "${RUNTIME_URL}"
+          unzip -q "${RUNTIME_ARCHIVE}" -d runtime-extract
+          SERVER_PATH="$(find runtime-extract -type f -iname 'llama-server.exe' | head -n 1)"
+          test -n "${SERVER_PATH}"
+          cp -a "$(dirname "${SERVER_PATH}")"/. payload/AI/runtime/windows-x64/
+          test -s payload/AI/runtime/windows-x64/llama-server.exe
+          sha256sum "${RUNTIME_ARCHIVE}" | tee evidence/windows-runtime-archive.sha256
+          sha256sum payload/AI/runtime/windows-x64/* > evidence/windows-runtime-files.sha256
+
+      - name: Download and verify production model
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 8 --retry-all-errors --continue-at - \
+            --output "payload/AI/models/${MODEL_FILE}" "${MODEL_URL}"
+          test "$(stat -c%s "payload/AI/models/${MODEL_FILE}")" = "${MODEL_SIZE}"
+          echo "${MODEL_SHA256}  payload/AI/models/${MODEL_FILE}" | sha256sum --check --strict
+          sha256sum "payload/AI/models/${MODEL_FILE}" | tee evidence/model.sha256
+
+      - name: Record payload manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          root=Path('payload')
+          files={}
+          for p in sorted(root.rglob('*')):
+              if not p.is_file():
+                  continue
+              h=hashlib.sha256()
+              with p.open('rb') as f:
+                  while True:
+                      b=f.read(8*1024*1024)
+                      if not b: break
+                      h.update(b)
+              files[p.relative_to(root).as_posix()]={'size_bytes':p.stat().st_size,'sha256':h.hexdigest()}
+          manifest={
+              'schema':'cdkgenai.windows-ai-assets.v1',
+              'runtime':'llama.cpp b10069 Windows CPU x64',
+              'model':'Qwen3-4B Q4_K_M',
+              'model_license':'Apache-2.0',
+              'files':files,
+          }
+          Path('evidence/windows-ai-assets-manifest.json').write_text(json.dumps(manifest,indent=2),encoding='utf-8')
+          print(json.dumps({'files':len(files),'bytes':sum(v['size_bytes'] for v in files.values())},indent=2))
+          PY
+
+      - name: Upload verified Windows AI payload
+        uses: actions/upload-artifact@v4
+        with:
+          name: cdkgenai-windows-ai-assets
+          path: |
+            payload/
+            evidence/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14

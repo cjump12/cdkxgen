@@ -33,7 +33,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p payload/AI/runtime/windows-x64 payload/AI/models evidence
+          mkdir -p payload/AI/runtime/windows-x64 payload/AI/models evidence segmented
           curl --fail --location --retry 8 --retry-all-errors --continue-at - \
             --output "${RUNTIME_ARCHIVE}" "${RUNTIME_URL}"
           unzip -q "${RUNTIME_ARCHIVE}" -d runtime-extract
@@ -54,11 +54,11 @@ jobs:
           echo "${MODEL_SHA256}  payload/AI/models/${MODEL_FILE}" | sha256sum --check --strict
           sha256sum "payload/AI/models/${MODEL_FILE}" | tee evidence/model.sha256
 
-      - name: Record payload manifest
+      - name: Record payload manifest and split model
         shell: bash
         run: |
           set -euo pipefail
-          python3 - <<'PY'
+          python3 - <<'PYCODE'
           import hashlib, json
           from pathlib import Path
           root=Path('payload')
@@ -74,23 +74,71 @@ jobs:
                       h.update(b)
               files[p.relative_to(root).as_posix()]={'size_bytes':p.stat().st_size,'sha256':h.hexdigest()}
           manifest={
-              'schema':'cdkgenai.windows-ai-assets.v1',
+              'schema':'cdkgenai.windows-ai-assets.v2',
               'runtime':'llama.cpp b10069 Windows CPU x64',
               'model':'Qwen3-4B Q4_K_M',
               'model_license':'Apache-2.0',
               'files':files,
           }
           Path('evidence/windows-ai-assets-manifest.json').write_text(json.dumps(manifest,indent=2),encoding='utf-8')
-          print(json.dumps({'files':len(files),'bytes':sum(v['size_bytes'] for v in files.values())},indent=2))
-          PY
+          PYCODE
+          mkdir -p segmented/runtime segmented/evidence segmented/model
+          cp -a payload/AI/runtime/windows-x64/. segmented/runtime/
+          cp -a evidence/. segmented/evidence/
+          split -b 400M -d -a 2 "payload/AI/models/${MODEL_FILE}" segmented/model/CDKGenAI-Assistant.gguf.part-
+          sha256sum segmented/model/* > segmented/evidence/model-parts.sha256
+          ls -lh segmented/model/
 
-      - name: Upload verified Windows AI payload
+      - name: Upload runtime and evidence
         uses: actions/upload-artifact@v4
         with:
-          name: cdkgenai-windows-ai-assets
+          name: cdkgenai-windows-runtime-and-evidence
           path: |
-            payload/
-            evidence/
+            segmented/runtime/
+            segmented/evidence/
           if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+
+      - name: Upload model part 00
+        uses: actions/upload-artifact@v4
+        with:
+          name: cdkgenai-model-part-00
+          path: segmented/model/CDKGenAI-Assistant.gguf.part-00
+          compression-level: 0
+          retention-days: 14
+      - name: Upload model part 01
+        uses: actions/upload-artifact@v4
+        with:
+          name: cdkgenai-model-part-01
+          path: segmented/model/CDKGenAI-Assistant.gguf.part-01
+          compression-level: 0
+          retention-days: 14
+      - name: Upload model part 02
+        uses: actions/upload-artifact@v4
+        with:
+          name: cdkgenai-model-part-02
+          path: segmented/model/CDKGenAI-Assistant.gguf.part-02
+          compression-level: 0
+          retention-days: 14
+      - name: Upload model part 03
+        uses: actions/upload-artifact@v4
+        with:
+          name: cdkgenai-model-part-03
+          path: segmented/model/CDKGenAI-Assistant.gguf.part-03
+          compression-level: 0
+          retention-days: 14
+      - name: Upload model part 04
+        uses: actions/upload-artifact@v4
+        with:
+          name: cdkgenai-model-part-04
+          path: segmented/model/CDKGenAI-Assistant.gguf.part-04
+          compression-level: 0
+          retention-days: 14
+      - name: Upload model part 05
+        uses: actions/upload-artifact@v4
+        with:
+          name: cdkgenai-model-part-05
+          path: segmented/model/CDKGenAI-Assistant.gguf.part-05
           compression-level: 0
           retention-days: 14
